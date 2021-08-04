@@ -351,7 +351,7 @@ function getMarginLeft2(margin: string | number) {
   }
 }
 
-// The above is called "Type Narrowing" - it allows some flexibility to handle more than one type.
+// The above is called "Type Narrowing" - it allows some flexibility to handle more than one type. Codecademy defined this as when TypeScript can infer more specific types based on the variable's surrounding code.
 
 // Unions and Arrays - When defining the union type of array, wrap the union in parens - NOTE - that if you don't use parentheses, it will interpret this as an array of EITHER strings or numbers, not either type.
 
@@ -385,5 +385,139 @@ const pettingZooAnimal: Goose | Moose = { isPettable: true };
 console.log(pettingZooAnimal.isPettable); // No TypeScript error
 console.log(pettingZooAnimal.hasHoofs); // TypeScript error
 
-// Unions with Literal Types -
+// Unions with Literal Types - Union below shows the arg can be of either type string or number.
 
+// Type Narrowing - when TypeScript can infer more specific types based on the variable's surrounding code.
+
+// Type Guards - When your code checks the type of the parameter and then does something different based on the type. Often uses `typeof`
+
+// Ex:
+function formatDate(date: string | number) {
+  // date can be a number or string here
+
+  if (typeof date === 'string') {
+    // date must be a string here
+  }
+}
+
+// in - the JavaScript operator checks if a property exists on an object itself, or anywhere in the prototype chain. In the below example, instead of checking the type of the parameter, it checks if the method exists on the parameter object:
+
+type Tennis = {
+  serve: () => void;
+}
+
+type Soccer = {
+  kick: () => void;
+}
+
+function play(sport: Tennis | Soccer) {
+  if ('serve' in sport) {
+    return sport.serve();
+  }
+
+  if ('kick' in sport) {
+    return sport.kick();
+  }
+}
+
+// Alternitvely you can use else blocks for when there are only two types:
+
+function formatPadding(padding: string | number) {
+  if (typeof padding === 'string') {
+    return padding.toLowerCase();
+  } else {
+    return `${padding}px`;
+  }
+}
+
+// You can further reduce the above code by removing the `else`, since there is a return statement in the type guard, you know that it will not execute the below code unless the type is something else. So  you can write:
+
+type Tea = {
+  steep: () => string;
+}
+
+type Coffee = {
+  pourOver: () => string;
+}
+
+function brew(beverage: Coffee | Tea) {
+  if ('steep' in beverage) {
+    return beverage.steep();
+  }
+
+  return beverage.pourOver();
+}
+
+// Interfaces and Types - Interface keyword is another way to define types. Note the difference from using the type keyword where we use the `=` assignment. The biggest difference between using the type and interface keywords is that `interface` can only be used to type objects. Ex:
+
+interface Mail {
+  postagePrice: number;
+  address: string;
+}
+
+// The reason you would use `interface` is is for when you literally need to type many objects - which is useful when programing in object-oriented-programming languages. The interface keyword is also great for adding types to a class using the `implements` keyword:
+
+interface Robot {
+  identify: (id: number) => void;
+}
+
+class OneSeries implements Robot {
+  identify(id: number){
+    console.log('Beep, I am ${id.toFixed(2)}');
+  }
+
+  answerQuestion() {
+    console.log('42!');
+  }
+}
+
+// Composed Types - because nesting can become very complex as we need more nested attributes, we can instead break a type into smaller types, then "compose" them into a single type that can be used elsehwere when needed:
+
+interface About {
+  general: General;
+}
+
+interface General {
+  id: number;
+  name: string;
+  version: Version;
+}
+
+interface Version {
+  versionNumber: number;
+}
+
+// Extending Interfaces - You can use the extends keyword to copy all the type members from one type into another. This can be really helpful to organize code by abstracting out common type members into their own interface, then copying them into more specific types .
+
+interface Shape {
+  color: string;
+}
+
+interface Square extends Shape {
+  sideLength: number;
+}
+
+const mySquare: Square = { sideLength: 10, color: 'blue' }
+
+// Index Signatures - When you don't know what the actual Key will be and cannot explicitly type it, you can use index signatures. So that it looks like this: (note that `latitude` is for humans to read so we know genraally what the key represents, - here we're saying that we should have a key that is of type string, with a value of type boolean) (Additionally, I think this means you could have multiple keys with a type of string and value of boolean)
+
+interface SolarEclipse {
+  [latitude: string]: boolean;
+}
+
+// Optional Type Members - Sometimes types can be optional using ?. The below code states that in a type of OptionsType, size is an optional property. In the function listFile, we check for size before calling it, as it may not be included.
+
+interface OptionsType {
+  name: string;
+  size?: string;
+}
+
+function listFile(options: OptionsType) {
+  let fileName = options.name;
+
+  if (options.size) {
+    fileName = `${fileName}: ${options.size}`;
+  }
+
+  return fileName;
+}
